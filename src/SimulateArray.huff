@@ -24,6 +24,94 @@
  #define error OutOfBounds()
  #define error ZeroArray()
 
- #define macro MAIN() = takes(0) returns(0) {
+#define macro MAIN() = takes(0) returns(0) {
+    returndatasize calldataload 0xe0 shr // [func_sig]
     
- }
+    dup1 __FUNC_SIG(pushh) eq pushhImp jumpi
+    dup1 __FUNC_SIG(popp) eq poppImp jumpi
+    dup1 __FUNC_SIG(read) eq readImp jumpi
+    dup1 __FUNC_SIG(length) eq lengthImp jumpi
+    dup1 __FUNC_SIG(write) eq writeImp jumpi
+
+    0x00 0x00 revert
+
+    pushhImp:
+      PUSHH()
+    poppImp:
+      POPP()
+    readImp:
+      READ()
+    lengthImp:
+      LENGTH()
+    writeImp:
+      WRITE()
+    
+    invalid
+}
+
+#define macro LENGTH() = takes(0) returns(0) {
+    returndatasize sload             // [length] We always store length at slot zero.
+    returndatasize mstore
+    0x20 returndatasize return
+}
+
+#define macro PUSHH() = takes(0) returns(0) {
+    returndatasize sload             // [length] We always store length at slot zero.
+    0x1 add dup1                    // [new_length, new_index]  , index starting from 1
+    returndatasize sstore            // [new_index] Store new length   , no need to hash or transform index, coz evm storage is a map
+
+    0x04 calldataload swap1 // [new_index, num]
+    sstore // [] Store new num at slot for new_index
+
+    0x00 0x00 return
+}
+
+#define macro POPP() = takes(0) returns(0) {
+    returndatasize sload             // [length] We always store length at slot zero.
+
+    dup1 iszero rev jumpi            // [length] revert if array is empty
+
+    0x01 swap1 sub                   // [new_length, index_to_pop]
+    returndatasize sstore            // [index_to_pop] store new length
+
+    returndatasize returndatasize return
+
+    rev:
+        __ERROR(ZeroArray) returndatasize mstore
+        0x04 returndatasize revert
+}
+
+#define macro READ() = takes(0) returns(0) {
+    returndatasize sload               // [length] We always store length at slot zero.
+    0x04 calldataload                  // [index, length]
+
+    dup1 swap2 gt continue jumpi       // [index] if length > index, continue
+
+    // Revert if index out of bounds.
+    __ERROR(OutOfBounds) returndatasize mstore
+    0x04 returndatasize revert
+
+    continue:
+        0x01 add sload                // [array[index]]
+        returndatasize mstore
+        0x20 returndatasize return
+}
+
+#define macro WRITE() = takes(0) returns(0) {
+    returndatasize sload             // [length] We always store length at slot zero.
+    0x04 calldataload                // [index, length]
+
+    dup1 swap2 gt continue jumpi     // [index] if length > index, continue
+
+    // Revert if index out of bounds.
+    __ERROR(OutOfBounds) returndatasize mstore
+    0x04 returndatasize revert
+
+    continue:
+        0x01 add                // [slot]
+        0x24 calldataload swap1 // [slot, num]
+        sstore                  // []
+
+        returndatasize returndatasize return
+}
+

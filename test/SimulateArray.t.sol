@@ -27,7 +27,9 @@ contract SimulateArrayTest is Test, NonMatchingSelectorHelper {
 
     function testSimulateArray(uint256[] memory array) external {
         vm.expectRevert(bytes4(keccak256("ZeroArray()")));
+        console.log("AAA");
         simulateArray.popp();
+        console.log("AAA");
 
         assertEq(simulateArray.length(), 0, "length is initially meant to be 0");
 
