@@ -14,7 +14,40 @@
 #define function store(uint256) payable returns()
 #define function read() payable returns(uint256)
 
+#define constant VALUE_LOCATION = FREE_STORAGE_POINTER()
+
+
+#define macro STORE() = takes (0) returns (0) {
+    0x04 calldataload   // [value]
+    [VALUE_LOCATION]    // [ptr, value]
+    sstore              // []
+
+    // End Execution
+    stop
+}
+
+#define macro READ() = takes (0) returns (0) {
+    // Load value from storage.
+    [VALUE_LOCATION]   // [ptr]
+    sload                // [value]
+
+    // Store value in memory.
+    0x00 mstore
+
+    // Return value
+    0x20 0x00 return
+}
 
 #define macro MAIN() = takes(0) returns(0) {
-    
+    // Identify which function is being called.
+    0x00 calldataload 0xE0 shr
+    dup1 __FUNC_SIG(store) eq storelabel jumpi
+    dup1 __FUNC_SIG(read) eq readlabel jumpi
+
+    0x00 0x00 revert
+
+    storelabel:
+        STORE()
+    readlabel:
+        READ()
 }

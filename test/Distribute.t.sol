@@ -40,6 +40,7 @@ contract DistributeTest is Test, NonMatchingSelectorHelper {
 
         // foundry only accepts a max 2**16 of vm.assumes in a test run so assert the length of recievers * precompiles_and_foundry_helper_addresses is within the limit
         // also subtract 3 to account for the other assumes below
+        //vm.assume(receivers.length < 200);
         vm.assume(receivers.length < (2 ** 16 / precompiles_and_foundry_helper_addresses.length) - 3);
         assume_not_precompile_or_foundry_helper_address(receivers);
 

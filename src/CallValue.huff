@@ -10,4 +10,11 @@
 
 #define macro MAIN() = takes(0) returns(0) {
     
+    callvalue 
+    
+    // Store value in memory.
+    0x00 mstore
+
+    // Return value
+    0x20 0x00 return
 }

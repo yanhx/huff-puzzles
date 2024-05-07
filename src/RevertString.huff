@@ -13,5 +13,13 @@
 
 
 #define macro MAIN() = takes(0) returns(0) {
-    
+
+    0x20 0x00 mstore      //Pointer
+
+    0x09 0x20 mstore    //Length
+
+    0x4f6e6c7920487566660000000000000000000000000000000000000000000000
+    0x40 mstore          //Contents
+
+    0x60 0x00 revert      
 }

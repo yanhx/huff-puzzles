@@ -11,7 +11,23 @@
  
  #define event Value(uint256 indexed, uint256)
 
+#define macro VALUE() = takes(0) returns(0) {
+    0x24 calldataload
+    0x00 mstore
 
- #define macro MAIN() = takes(0) returns(0) {
-    
- }
+    0x04 calldataload
+    __EVENT_HASH(Value)
+    0x20 0x00
+    log2
+}
+
+#define macro MAIN() = takes(0) returns(0) {
+    // Identify which function is being called.
+    0x00 calldataload 0xE0 shr
+    dup1 __FUNC_SIG(value) eq valuelabel jumpi
+
+    0x00 0x00 revert
+
+    valuelabel:
+        VALUE()
+}

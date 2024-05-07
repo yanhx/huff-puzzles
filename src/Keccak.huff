@@ -10,4 +10,12 @@
 
  #define macro MAIN() = takes(0) returns(0) {
     
+    calldatasize returndatasize returndatasize         //destOffset, offset, size
+    calldatacopy                                     //
+    calldatasize returndatasize                         //offset, size
+    sha3
+
+    returndatasize mstore       
+
+    0x20 returndatasize return
  }
